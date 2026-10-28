@@ -1,5 +1,7 @@
 node_modules/
 dist/
-.env
+# Any .env file holds secrets; only the example is committed.
+.env*
+!.env.example
 .vercel/
 *.log
