@@ -57,7 +57,12 @@ export const updateOrderStatusSchema = z.object({
   status: z.enum(ORDER_STATUSES, "Choose a valid status"),
 });
 
+export const contactReplySchema = z.object({
+  message: text().min(2, "Write a reply first").max(5000),
+});
+
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type ContactReplyInput = z.infer<typeof contactReplySchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateContactInput = z.infer<typeof createContactSchema>;

@@ -42,6 +42,17 @@ export const contacts = pgTable("contacts", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Every email reply the baker sends to a contact message, so the dashboard can show
+// the conversation.
+export const contactReplies = pgTable("contact_replies", {
+  id: serial("id").primaryKey(),
+  contactId: integer("contact_id")
+    .notNull()
+    .references(() => contacts.id, { onDelete: "cascade" }),
+  message: text("message").notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // The baker's login. Only a bcrypt hash of the password is ever stored.
 export const admins = pgTable("admins", {
   id: serial("id").primaryKey(),

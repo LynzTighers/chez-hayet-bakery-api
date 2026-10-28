@@ -24,11 +24,25 @@ services:
       # Inside Docker the database is reached by its service name, not localhost.
       DATABASE_URL: postgres://bakery:bakery@db:5432/bakery
       PORT: "4000"
+      # Emails go to Mailpit, never to real inboxes. See them at http://localhost:8025
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      MAIL_FROM: "Chez Hayet Bakery <orders@chezhayetoh.com>"
+      MAIL_REPLY_TO: "hayet@example.com"
     ports:
       - "4000:4000"
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  # A fake email server with a web inbox, for testing emails safely.
+  mailpit:
+    image: axllent/mailpit:v1.29
+    ports:
+      - "8025:8025" # web inbox
+      - "1025:1025" # SMTP
 
 volumes:
   db-data:
