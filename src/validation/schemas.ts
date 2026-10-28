@@ -50,6 +50,14 @@ export const loginSchema = z.object({
   password: z.string("Required").min(1, "Required").max(200),
 });
 
+// Must match the order_status enum in db/schema.ts.
+export const ORDER_STATUSES = ["new", "confirmed", "completed", "cancelled"] as const;
+
+export const updateOrderStatusSchema = z.object({
+  status: z.enum(ORDER_STATUSES, "Choose a valid status"),
+});
+
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateContactInput = z.infer<typeof createContactSchema>;
