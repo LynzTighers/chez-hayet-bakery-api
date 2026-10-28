@@ -1,0 +1,34 @@
+# Runs the API and a Postgres database together: `docker compose up --build`
+# The Next.js site will join this file in a later step.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: bakery
+      POSTGRES_PASSWORD: bakery
+      POSTGRES_DB: bakery
+    ports:
+      - "5432:5432"
+    volumes:
+      # Keeps orders and messages when containers restart.
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bakery -d bakery"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  api:
+    build: .
+    environment:
+      # Inside Docker the database is reached by its service name, not localhost.
+      DATABASE_URL: postgres://bakery:bakery@db:5432/bakery
+      PORT: "4000"
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
