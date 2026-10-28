@@ -5,6 +5,8 @@ import express from "express";
 import helmet from "helmet";
 import { ordersRouter } from "./routes/orders.js";
 import { contactsRouter } from "./routes/contacts.js";
+import { authRouter } from "./routes/auth.js";
+import { adminRouter } from "./routes/admin.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 
 const app = express();
@@ -19,6 +21,9 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/orders", ordersRouter);
 app.use("/api/contacts", contactsRouter);
+app.use("/api/auth", authRouter);
+// Baker-only routes; every route in here requires a valid login cookie.
+app.use("/api/admin", adminRouter);
 
 app.use(notFound);
 app.use(errorHandler);

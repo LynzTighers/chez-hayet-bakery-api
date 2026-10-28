@@ -44,5 +44,12 @@ export const createContactSchema = z.object({
   message: text().min(5, "Message is too short").max(2000),
 });
 
+export const loginSchema = z.object({
+  username: text().toLowerCase().min(1, "Required").max(50),
+  // Not trimmed: spaces can be part of a password.
+  password: z.string("Required").min(1, "Required").max(200),
+});
+
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateContactInput = z.infer<typeof createContactSchema>;

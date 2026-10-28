@@ -1,6 +1,17 @@
 // Database tables, matching bakery_website_architecture.png.
 // Edit this file, then run `npm run db:generate` to create a new SQL migration.
-import { date, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const orderStatus = pgEnum("order_status", ["new", "confirmed", "completed", "cancelled"]);
 export const contactStatus = pgEnum("contact_status", ["new", "replied"]);
@@ -38,3 +49,26 @@ export const admins = pgTable("admins", {
   passwordHash: text("password_hash").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// One row per logged-in browser. The cookie holds a random token; only its SHA-256
+// hash is stored, so a leaked database can't be used to log in.
+export const sessions = pgTable("sessions", {
+  tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+  adminId: integer("admin_id")
+    .notNull()
+    .references(() => admins.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Every login try, used to block password guessing (too many failures in a short time).
+export const loginAttempts = pgTable(
+  "login_attempts",
+  {
+    id: serial("id").primaryKey(),
+    username: varchar("username", { length: 50 }).notNull(),
+    succeeded: boolean("succeeded").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("login_attempts_username_created_at_idx").on(table.username, table.createdAt)],
+);
